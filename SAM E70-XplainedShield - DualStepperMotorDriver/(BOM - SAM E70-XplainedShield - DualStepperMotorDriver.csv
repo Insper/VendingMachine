@@ -1,0 +1,14 @@
+Quantidade;Device;Valor;Encapsulamento;Componente;;MF;MPN;OC_FARNELL;OC_NEWARK;PROD_ID;VALUE;_
+2;Barra de Pinos Fêmea;6 Vias;1x06 - Pinos Longos;J2, J4;;;;;;;;
+2;Barra de Pinos Fêmea;8 Vias;1x08 - Pinos Longos ;J1, J5;;;;;;;;
+2;Barra de Pinos Macho;4 Vias;1x04 - Pinos Curtos ;JP1, JP2;;;;;;;;
+2;Borne KRE;2 Vias;KF301-2P;POWER, POWER1;;;;;;;;
+4;Resitor ;5K;1/4W;RCLA, RCLA1, RCLB, RCLB1;;;;;; ; ;
+4;Resitor;100K;1/4W;RENA, RENA1, RENA2, RENA3;;;;;; ; ;
+2;Resitorr;100R;1/4W;RP, RP1;;;;;; ; ;
+2;Capacitor Cerâmico;220nF;Capacitor Cerâmico Tipo Disco;CBOOT, CBOOT1;;;;;;;;
+2;Capacitor Cerâmico;100nF/50V;Capacitor Cerâmico Tipo Disco;C2, C4;;;;;;;;
+6;Capacitor Cerâmico;10nF/50V;Capacitor Cerâmico Tipo Disco;CENA, CENA1, CENA2, CENA3, CP, CP1;;;;;;;;
+2;Capacitor Eletrolítico;100uF/25V;Capacitor Polarizado Radial;C1, C3;;;;;;;;
+4;Diodo;1N4148;DO-35(DO-204AH);D1, D2, D3, D4;;;;;;DIO-08378;200mA/100V/1V;
+2;DMOS dual full bridge driver;L6206;DIL24S;IC1, IC2;;;;;;;;
