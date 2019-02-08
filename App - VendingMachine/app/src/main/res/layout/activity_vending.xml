@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#f54f54" android:orientation="vertical">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal"
+                      android:text="Vending Machine" android:textSize="28dp" android:textColor="#ffffff"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal"
+                      android:text="Escolha a cor" android:textSize="20dp" android:textColor="#ffffff"/>
+        </LinearLayout>
+       <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="2" android:rowCount="1" >
+           <LinearLayout android:layout_gravity="fill" android:layout_columnWeight="1" android:orientation="vertical">
+               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Filamento 1" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
+               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cor:" android:id="@+id/cor1_texto" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
+               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Disponível:" android:id="@+id/cor1_qnt" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
+               <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Comprar" android:id="@+id/cor1_comprar" android:layout_gravity="center" android:layout_marginTop="10dp"/>
+           </LinearLayout>
+           <LinearLayout android:layout_gravity="fill" android:layout_columnWeight="1" android:orientation="vertical">
+               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Filamento 2" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
+               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cor:" android:id="@+id/cor2_texto" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
+               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Disponível:" android:id="@+id/cor2_qnt" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
+               <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Comprar" android:id="@+id/cor2_comprar" android:layout_gravity="center" android:layout_marginTop="10dp"/>
+           </LinearLayout>
+       </GridLayout>
+       <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Debug / Terminal" android:id="@+id/debug_button" android:layout_gravity="center" android:layout_marginTop="10dp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"  android:id="@+id/debug_layout" android:visibility="invisible">
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:inputType="textMultiLine"
+                android:lines="3"
+                android:padding="8dp"
+                android:background="#50c5c5c5"
+                android:gravity="top|left"
+                android:cursorVisible="false"
+                android:scrollbars="vertical"
+                android:enabled="false"
+                android:id="@+id/editText1"/>
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="match_parent">
+            <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_weight="0.7"
+                    android:inputType="textPersonName"
+                    android:text=""
+                    android:ems="10"
+                    android:id="@+id/editText2"
+                    android:layout_height="wrap_content"/>
+            <Button
+                    android:text="Enviar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/button"
+                    android:layout_weight="0.3"/>
+        </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
