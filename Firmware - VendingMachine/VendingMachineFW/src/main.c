@@ -59,6 +59,8 @@ SemaphoreHandle_t semaLCDRedraw;
 SemaphoreHandle_t semaFilamento;
 SemaphoreHandle_t semaKeypad;
 
+QueueHandle_t xQueueKeypad;
+
 // Eventos do RTOS
 extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
 signed char *pcTaskName)
@@ -200,7 +202,7 @@ static void configure_lcd(void){
 	ili9488_init(&g_ili9488_display_opt);
 }
 
-void draw_filament_status(int x, int y, uint32_t color, const char* color_name, int percentage) {
+void draw_filament_status(int x, int y, uint32_t color, int filament_id, const char* color_name, int percentage) {
 	char percentage_text[6];
 	
 	ili9488_draw_pixmap(x, y, 128, 126, image_data_filamento);
@@ -227,28 +229,34 @@ void draw_filament_status(int x, int y, uint32_t color, const char* color_name, 
 	}
 	
 	ili9488_draw_string(x + 128/2 - 20, y + 160 + 6, percentage_text);
+	char buffer[50];
+	sprintf(buffer, "OPCAO %d", filament_id);
+	ili9488_draw_string(x + 3, y + 190, buffer);
 }
 
 // TODO: FAZER INDICACAO DE ESCOLHA DE USUÁRIO
 // IRA ESCOLHER VIA KEYPAD
 void draw_lcd_screen(void) {
+	ili9488_set_foreground_color(COLOR_CONVERT(COLOR_WHITE));
 	ili9488_draw_filled_rectangle(0, 0, ILI9488_LCD_WIDTH-1, ILI9488_LCD_HEIGHT-1);
 	ili9488_set_foreground_color(COLOR_CONVERT(COLOR_TOMATO));
-	ili9488_draw_filled_rectangle(0, 0, ILI9488_LCD_WIDTH-1, 120-1);
-	ili9488_draw_filled_rectangle(0, 360, ILI9488_LCD_WIDTH-1, 480-1);
+	ili9488_draw_filled_rectangle(0, 0, ILI9488_LCD_WIDTH-1, 90-1);
+	ili9488_draw_filled_rectangle(0, 450, ILI9488_LCD_WIDTH-1, 480-1);
 	ili9488_set_foreground_color(COLOR_CONVERT(COLOR_WHITE));
-	ili9488_draw_string(260, 5, "14:20");
-	ili9488_draw_string(10, 40, "LOJA DE FILAMENTOS");
 	
-	ili9488_draw_string(10, 60, "- ESCOLHA PELO APLICATIVO");
-	ili9488_draw_string(10, 80, "- AGUARDE A SAIDA E CORTE");
-	draw_filament_status(10, 150, COLOR_GREEN, "VERDE", 40);
-	draw_filament_status(170, 150, COLOR_BLUE, "AZUL", 80);
+	ili9488_draw_string(260, 5, "14:20");
+	ili9488_draw_string(10, 5, "LOJA DE FILAMENTOS");
+	ili9488_draw_string(10, 25, "- ESCOLHA O NUM. DA OPCAO");
+	ili9488_draw_string(10, 45, "- INDIQUE A QUANTIDADE");
+	ili9488_draw_string(10, 65, "- PAGUE PELO APP");
+	draw_filament_status(10, 100, COLOR_GREEN, 1, "VERDE", 40);
+	draw_filament_status(170, 100, COLOR_BLUE, 2, "AZUL", 80);
+	
+	ili9488_draw_string(5, 435, "* - LIMPAR");
+	ili9488_draw_string(160, 435, "# - CONFIRMA");
 	ili9488_set_foreground_color(COLOR_CONVERT(COLOR_WHITE));
-	ili9488_draw_string(50, 370, "AGUARDANDO PEDIDO...");
-	ili9488_draw_string(32, 410, "DEV BY: RAFAEL CORSI");
-	ili9488_draw_string(80, 430, "& MARCO MELLO");
-	ili9488_draw_string(72, 450, "& EDUARDO MAROSSI");
+	ili9488_draw_string(5, 455, "DEV BY: LAB DE ARQUITETURA");
+	
 }
 
 // Motor
@@ -316,13 +324,15 @@ void motor_passo() {
 // TODO: ALTERAR PROTOCOLO, JA QUE PAGAMENTO APENAS SERA VIA CELULAR
 static void taskBluetooth(void *pvParameters) {
 	usart_log("BT_Task", "Iniciando...");
-	hm10_config_server();
-	hm10_server_init();
+	//hm10_config_server();
+	//hm10_server_init();
 	usart_log("BT_Task", "Inicializado");
 	char buffer[100];
 	xSemaphoreGive(semaLCDRedraw);
 	for(;;) {
-		
+		vTaskDelay(5000/portTICK_PERIOD_MS);
+		usart_log("BT", "oi");
+		/*
 		// TODO: Sera refeito
 		usart_put_string(USART0, "S0;VERDE;40\n");
 		uint32_t read = usart_get_string(USART0, buffer, 100, 1000);
@@ -334,20 +344,51 @@ static void taskBluetooth(void *pvParameters) {
 		}
 		//usart_put_string(USART0, "S1;AZUL;80\n");
 		vTaskDelay(500/portTICK_PERIOD_MS);
+		*/
 	}
 }
+
+char g_opcao[4];
+uint32_t g_opcao_num = 0;
+uint32_t g_quantidade_num = 0;
+char g_quantidade[12];
+char g_valor[16];
+uint32_t g_redraw_all = 0;
+uint32_t g_keypad_state = 0;
+// Estado 0 -> Opcao
+// Estado 1 -> Quantidade
+// Estado 2 -> Confirma/Cancela
 
 static void taskLCD(void *pvParameters) {
 	usart_log("LCD_Task", "Iniciando...");
 	configure_lcd();
+	draw_lcd_screen();
 	usart_log("BT_Task", "Iniciado");
+	sprintf(g_opcao, "");
+	sprintf(g_quantidade, "");
+	sprintf(g_valor, "R$150,00");
 	for(;;) {
-		if( xSemaphoreTake(semaLCDRedraw, 10))
+		if( xSemaphoreTake(semaLCDRedraw, 2000))
 		{
+			if(g_redraw_all) {
 			draw_lcd_screen();
-			} else {
-			vTaskDelay(2000/portTICK_PERIOD_MS);
+			}
+			ili9488_set_foreground_color(COLOR_CONVERT(COLOR_WHITE));
+			ili9488_draw_filled_rectangle(0, 310, ILI9488_LCD_WIDTH-1, 430);
+			ili9488_set_foreground_color(COLOR_CONVERT(COLOR_BLACK));
+			if(g_keypad_state == 0) {
+				ili9488_draw_string(80, 370, "DIGITE A OPCAO");
+				ili9488_draw_string(160, 390, g_opcao);
+				} else if(g_keypad_state == 1) {
+				ili9488_draw_string(20, 370, "DIGITE A QUANTIDADE (CM)");
+				ili9488_draw_string(160, 390, g_quantidade);
+				} else if(g_keypad_state == 2) {
+				ili9488_draw_string(80, 370, "PAGUE PELO APP");
+				ili9488_draw_string(120, 390, g_valor);
+			}
 		}
+		
+		
 	}
 }
 
@@ -440,6 +481,7 @@ static void taskFilamento(void *pvParameters) {
 		}
 	}
 }
+
 static int keypad_check_pin(uint32_t line_pio, uint32_t line, uint32_t column_pio, uint32_t column) {
 	pio_clear(line_pio, line);
 	
@@ -474,6 +516,7 @@ static char keypad_get_value() {
 	return ' ';
 }
 
+
 static void taskKeypad(void *pvParameters) {
 	configure_keypad();
 	usart_log("Keypad_task", "Iniciando...");
@@ -482,17 +525,48 @@ static void taskKeypad(void *pvParameters) {
 	pio_clear(KEYPAD_LINE_3_PIO, KEYPAD_LINE_3);
 	pio_clear(KEYPAD_LINE_4_PIO, KEYPAD_LINE_4);
 	for(;;) {
-		if(xSemaphoreTake(semaKeypad, 0) == pdTRUE) {
+		if(xSemaphoreTake(semaKeypad, 10000) == pdTRUE) {
 			char k = keypad_get_value();
+			xQueueSend(xQueueKeypad, k, 0);
+			/*
 			if(k != ' ') {
 				printf("%c", k);
+			}*/
+			if(g_keypad_state == 0) {
+				if(k == '*') {
+					sprintf(g_opcao, "");
+					g_opcao_num = 0;
+				} else if (k == '#') {
+					g_keypad_state = 1;
+				} else if(g_opcao_num < 1 && k != ' ') {
+					g_opcao[g_opcao_num++] = k;
+					g_opcao[g_opcao_num] = '\0';
+				} 
+			} else if(g_keypad_state == 1) {
+				if(k == '*') {
+					sprintf(g_quantidade, "");
+					g_quantidade_num = 0;
+				} else if (k == '#') {
+					g_keypad_state = 2;
+				} else if(g_quantidade_num < 4 && k != ' ') {
+					g_quantidade[g_quantidade_num++] = k;
+					g_quantidade[g_quantidade_num] = '\0';
+				} 
+			} else if(g_keypad_state == 2) {
+				if(k == '*') {
+					sprintf(g_quantidade, "");
+					g_quantidade_num = 0;
+					sprintf(g_opcao, "");
+					g_opcao_num = 0;
+					g_keypad_state = 0;
+				}
 			}
 			pio_clear(KEYPAD_LINE_1_PIO, KEYPAD_LINE_1);
 			pio_clear(KEYPAD_LINE_2_PIO, KEYPAD_LINE_2);
 			pio_clear(KEYPAD_LINE_3_PIO, KEYPAD_LINE_3);
 			pio_clear(KEYPAD_LINE_4_PIO, KEYPAD_LINE_4);
+			xSemaphoreGive(semaLCDRedraw);
 		}
-		
 	}
 }
 
@@ -521,7 +595,12 @@ int main (void)
 	
 	if (semaKeypad == NULL)
 	printf("falha em criar o semaforo \n");
-	/*
+	
+	xQueueKeypad = xQueueCreate(10, sizeof(char));
+	if(xQueueKeypad == NULL) {
+		printf("falha em criar o semaforo \n");
+	}
+	
 	
 	if (xTaskCreate(taskBluetooth, "Bluetooth", TASK_BT_STACK_SIZE, NULL, TASK_BT_STACK_PRIORITY, NULL) != pdPASS)
 	printf("Failed to create BT task\r\n");
@@ -531,7 +610,7 @@ int main (void)
 	
 	if (xTaskCreate(taskFilamento, "Filamento", TASK_FILAMENTO_STACK_SIZE, NULL, TASK_FILAMENTO_STACK_PRIORITY, NULL) != pdPASS)
 	printf("Failed to create Filamento task\r\n");
-	*/
+	
 	
 	if (xTaskCreate(taskKeypad, "Keypad", TASK_FILAMENTO_STACK_SIZE, NULL, TASK_FILAMENTO_STACK_PRIORITY, NULL) != pdPASS)
 	printf("Failed to create Filamento task\r\n");
