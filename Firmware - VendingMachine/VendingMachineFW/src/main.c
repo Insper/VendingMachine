@@ -155,21 +155,18 @@ void hm10_config_server(void) {
 
 int hm10_server_init(void) {
 	char buffer_rx[128];
-	usart_send_command(USART0, buffer_rx, 1000, "AT", 200);
+	usart_send_command(USART0, buffer_rx, 1000, "AT\r\n", 200);
+	usart_send_command(USART0, buffer_rx, 1000, "AT\r\n", 200);
+	usart_send_command(USART0, buffer_rx, 1000, "AT\r\n", 200);
+	usart_send_command(USART0, buffer_rx, 1000, "AT+RESET\r\n", 400);
 	usart_log("hm10_server_init", buffer_rx);
-	usart_send_command(USART0, buffer_rx, 1000, "AT", 200);
+	usart_send_command(USART0, buffer_rx, 1000, "AT+NAMEVending\r\n", 400);
 	usart_log("hm10_server_init", buffer_rx);
-	usart_send_command(USART0, buffer_rx, 1000, "AT", 200);
+	usart_send_command(USART0, buffer_rx, 1000, "AT+FILT0\r\n", 400);
 	usart_log("hm10_server_init", buffer_rx);
-	usart_send_command(USART0, buffer_rx, 1000, "AT+RESET", 400);
+	usart_send_command(USART0, buffer_rx, 1000, "AT+SHOW1\r\n", 400);
 	usart_log("hm10_server_init", buffer_rx);
-	usart_send_command(USART0, buffer_rx, 1000, "AT+NAMEServer", 400);
-	usart_log("hm10_server_init", buffer_rx);
-	usart_send_command(USART0, buffer_rx, 1000, "AT+FILT0", 400);
-	usart_log("hm10_server_init", buffer_rx);
-	usart_send_command(USART0, buffer_rx, 1000, "AT+SHOW1", 400);
-	usart_log("hm10_server_init", buffer_rx);
-	usart_send_command(USART0, buffer_rx, 1000, "AT+ROLE0", 400);
+	usart_send_command(USART0, buffer_rx, 1000, "AT+ROLE0\r\n", 400);
 	usart_log("hm10_server_init", buffer_rx);
 }
 
@@ -324,8 +321,8 @@ void motor_passo() {
 // TODO: ALTERAR PROTOCOLO, JA QUE PAGAMENTO APENAS SERA VIA CELULAR
 static void taskBluetooth(void *pvParameters) {
 	usart_log("BT_Task", "Iniciando...");
-	//hm10_config_server();
-	//hm10_server_init();
+	hm10_config_server();
+	hm10_server_init();
 	usart_log("BT_Task", "Inicializado");
 	char buffer[100];
 	xSemaphoreGive(semaLCDRedraw);
@@ -405,11 +402,11 @@ static void taskLCD(void *pvParameters) {
 #define KEYPAD_LINE_4 PIO_PD28
 
 #define KEYPAD_COLUMN_1_PIO PIOA
-#define KEYPAD_COLUMN_1 PIO_PA3
+#define KEYPAD_COLUMN_1 PIO_PA19
 #define KEYPAD_COLUMN_2_PIO PIOB
-#define KEYPAD_COLUMN_2 PIO_PB0
-#define KEYPAD_COLUMN_3_PIO PIOD
-#define KEYPAD_COLUMN_3 PIO_PD25
+#define KEYPAD_COLUMN_2 PIO_PB2
+#define KEYPAD_COLUMN_3_PIO PIOC
+#define KEYPAD_COLUMN_3 PIO_PC30
 #define KEYPAD_COLUMN_4_PIO PIOD
 #define KEYPAD_COLUMN_4 PIO_PD20
 
@@ -431,6 +428,9 @@ static void configure_keypad(void) {
 	NVIC_EnableIRQ(ID_PIOB);
 	NVIC_SetPriority(ID_PIOB, 5);
 	
+		NVIC_EnableIRQ(ID_PIOC);
+		NVIC_SetPriority(ID_PIOC, 5);
+		
 	NVIC_EnableIRQ(ID_PIOD);
 	NVIC_SetPriority(ID_PIOD, 6);
 	
@@ -461,7 +461,7 @@ static void configure_keypad(void) {
 	
 	
 	pio_handler_set(KEYPAD_COLUMN_2_PIO, ID_PIOB, KEYPAD_COLUMN_2, PIO_IT_FALL_EDGE,  keypad_ir);
-	pio_handler_set(KEYPAD_COLUMN_3_PIO, ID_PIOD, KEYPAD_COLUMN_3, PIO_IT_FALL_EDGE,  keypad_ir);
+	pio_handler_set(KEYPAD_COLUMN_3_PIO, ID_PIOC, KEYPAD_COLUMN_3, PIO_IT_FALL_EDGE,  keypad_ir);
 	pio_handler_set(KEYPAD_COLUMN_4_PIO, ID_PIOD, KEYPAD_COLUMN_4, PIO_IT_FALL_EDGE,  keypad_ir);
 	
 
