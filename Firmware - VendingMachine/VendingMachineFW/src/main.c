@@ -312,7 +312,7 @@ void motor_passo() {
 	passo++;
 }
 
-// Tasks 
+// Tasks
 // TODO: ALTERAR PROTOCOLO, JA QUE PAGAMENTO APENAS SERA VIA CELULAR
 static void taskBluetooth(void *pvParameters) {
 	usart_log("BT_Task", "Iniciando...");
@@ -327,7 +327,7 @@ static void taskBluetooth(void *pvParameters) {
 		usart_put_string(USART0, "S0;VERDE;40\n");
 		uint32_t read = usart_get_string(USART0, buffer, 100, 1000);
 		usart_log("BT", buffer);
-	    
+		
 		if(read >= 5 && strstr(buffer, "C;0;1") != 0) {
 			vTaskDelay(200/portTICK_PERIOD_MS);
 			usart_put_string(USART0, "ROK\n");
@@ -342,12 +342,12 @@ static void taskLCD(void *pvParameters) {
 	configure_lcd();
 	usart_log("BT_Task", "Iniciado");
 	for(;;) {
-		 if( xSemaphoreTake(semaLCDRedraw, 10))
-		 {
+		if( xSemaphoreTake(semaLCDRedraw, 10))
+		{
 			draw_lcd_screen();
-		 } else {
-			 vTaskDelay(2000/portTICK_PERIOD_MS);
-		 }
+			} else {
+			vTaskDelay(2000/portTICK_PERIOD_MS);
+		}
 	}
 }
 
@@ -384,15 +384,15 @@ static void configure_keypad(void) {
 	pmc_enable_periph_clk(ID_PIOC);
 	pmc_enable_periph_clk(ID_PIOD);
 	
-		NVIC_EnableIRQ(ID_PIOA);
-		NVIC_SetPriority(ID_PIOA, 4);
-		
-		NVIC_EnableIRQ(ID_PIOB);
-		NVIC_SetPriority(ID_PIOB, 5);
-		
-		NVIC_EnableIRQ(ID_PIOD);
-		NVIC_SetPriority(ID_PIOD, 6);
-		
+	NVIC_EnableIRQ(ID_PIOA);
+	NVIC_SetPriority(ID_PIOA, 4);
+	
+	NVIC_EnableIRQ(ID_PIOB);
+	NVIC_SetPriority(ID_PIOB, 5);
+	
+	NVIC_EnableIRQ(ID_PIOD);
+	NVIC_SetPriority(ID_PIOD, 6);
+	
 	pio_configure(KEYPAD_LINE_1_PIO, PIO_OUTPUT_1, KEYPAD_LINE_1, PIO_DEFAULT);
 	pio_configure(KEYPAD_COLUMN_1_PIO, PIO_INPUT, KEYPAD_COLUMN_1, PIO_PULLUP | PIO_DEBOUNCE);
 
@@ -403,12 +403,13 @@ static void configure_keypad(void) {
 	pio_configure(KEYPAD_COLUMN_3_PIO, PIO_INPUT, KEYPAD_COLUMN_3, PIO_PULLUP | PIO_DEBOUNCE);
 	
 	pio_configure(KEYPAD_LINE_4_PIO, PIO_OUTPUT_1, KEYPAD_LINE_4, PIO_DEFAULT);
-	pio_configure(KEYPAD_COLUMN_4_PIO, PIO_INPUT, KEYPAD_COLUMN_4, PIO_PULLUP | PIO_DEBOUNCE);	
+	pio_configure(KEYPAD_COLUMN_4_PIO, PIO_INPUT, KEYPAD_COLUMN_4, PIO_PULLUP | PIO_DEBOUNCE);
 	
-	pio_set_debounce_filter(KEYPAD_COLUMN_1_PIO, KEYPAD_COLUMN_1, 60);
-	pio_set_debounce_filter(KEYPAD_COLUMN_2_PIO, KEYPAD_COLUMN_2, 60);
-	pio_set_debounce_filter(KEYPAD_COLUMN_3_PIO, KEYPAD_COLUMN_3, 60);
-	pio_set_debounce_filter(KEYPAD_COLUMN_4_PIO, KEYPAD_COLUMN_4, 60);
+	
+	pio_set_debounce_filter(KEYPAD_COLUMN_1_PIO, KEYPAD_COLUMN_1, 200);
+	pio_set_debounce_filter(KEYPAD_COLUMN_2_PIO, KEYPAD_COLUMN_2, 200);
+	pio_set_debounce_filter(KEYPAD_COLUMN_3_PIO, KEYPAD_COLUMN_3, 200);
+	pio_set_debounce_filter(KEYPAD_COLUMN_4_PIO, KEYPAD_COLUMN_4, 200);
 	
 	
 	pio_enable_interrupt(KEYPAD_COLUMN_1_PIO, KEYPAD_COLUMN_1);
@@ -417,11 +418,11 @@ static void configure_keypad(void) {
 	pio_enable_interrupt(KEYPAD_COLUMN_4_PIO, KEYPAD_COLUMN_4);
 	pio_handler_set(KEYPAD_COLUMN_1_PIO, ID_PIOA, KEYPAD_COLUMN_1, PIO_IT_FALL_EDGE,  keypad_ir);
 	
-		
-		pio_handler_set(KEYPAD_COLUMN_2_PIO, ID_PIOB, KEYPAD_COLUMN_2, PIO_IT_FALL_EDGE,  keypad_ir);
-		pio_handler_set(KEYPAD_COLUMN_3_PIO, ID_PIOD, KEYPAD_COLUMN_3, PIO_IT_FALL_EDGE,  keypad_ir);
-		pio_handler_set(KEYPAD_COLUMN_4_PIO, ID_PIOD, KEYPAD_COLUMN_4, PIO_IT_FALL_EDGE,  keypad_ir);
-		
+	
+	pio_handler_set(KEYPAD_COLUMN_2_PIO, ID_PIOB, KEYPAD_COLUMN_2, PIO_IT_FALL_EDGE,  keypad_ir);
+	pio_handler_set(KEYPAD_COLUMN_3_PIO, ID_PIOD, KEYPAD_COLUMN_3, PIO_IT_FALL_EDGE,  keypad_ir);
+	pio_handler_set(KEYPAD_COLUMN_4_PIO, ID_PIOD, KEYPAD_COLUMN_4, PIO_IT_FALL_EDGE,  keypad_ir);
+	
 
 }
 
@@ -430,31 +431,32 @@ static void taskFilamento(void *pvParameters) {
 	for(;;) {
 		if( xSemaphoreTake(semaFilamento, 10))
 		{
-			for(uint32_t i = 0; i < 10; i++) { 
+			for(uint32_t i = 0; i < 10; i++) {
 				motor_passo();
 				vTaskDelay(10/portTICK_PERIOD_MS);
 			}
-		} else {
+			} else {
 			vTaskDelay(4000/portTICK_PERIOD_MS);
 		}
 	}
 }
-static int keypad_check_pin(uint32_t line_pio, uint32_t line, uint32_t column_pio, uint32_t column, uint32_t debouce_in_ms) {
+static int keypad_check_pin(uint32_t line_pio, uint32_t line, uint32_t column_pio, uint32_t column) {
 	pio_clear(line_pio, line);
-	//delay_ms(20);
-	vTaskDelay(20);
-	if(pio_get(column_pio, PIO_INPUT, column) == LOW) {
-		vTaskDelay(debouce_in_ms);
-		return pio_get(column_pio, PIO_INPUT, column) == LOW;
+	
+	vTaskDelay(10/portTICK_PERIOD_MS); // estabilizar linha
+	int val = pio_get(column_pio, PIO_INPUT, column) == LOW;
+	// espera soltar
+	while (pio_get(column_pio, PIO_INPUT, column) == LOW) {
+		vTaskDelay(200/portTICK_PERIOD_MS);
 	}
-	return 0;
+	return val;
 }
 
-static char keypad_get_value(uint32_t debouce_in_ms) {
+static char keypad_get_value() {
 	uint32_t KEYPAD_LINE_PIO_ARRAY[] = {KEYPAD_LINE_1_PIO, KEYPAD_LINE_2_PIO, KEYPAD_LINE_3_PIO, KEYPAD_LINE_4_PIO};
 	uint32_t KEYPAD_LINE_ARRAY[] = {KEYPAD_LINE_1, KEYPAD_LINE_2, KEYPAD_LINE_3, KEYPAD_LINE_4};
-	uint32_t KEYPAD_COLUMN_PIO_ARRAY[] = {KEYPAD_COLUMN_1_PIO, KEYPAD_COLUMN_2_PIO, KEYPAD_COLUMN_3_PIO, KEYPAD_COLUMN_4_PIO};
-	uint32_t KEYPAD_COLUMN_ARRAY[] = {KEYPAD_COLUMN_1, KEYPAD_COLUMN_2, KEYPAD_COLUMN_3, KEYPAD_COLUMN_4};
+	uint32_t KEYPAD_COLUMN_PIO_ARRAY[] = {KEYPAD_COLUMN_1_PIO, KEYPAD_COLUMN_2_PIO, KEYPAD_COLUMN_3_PIO, KEYPAD_COLUMN_3_PIO}; //KEYPAD_COLUMN_4_PIO
+	uint32_t KEYPAD_COLUMN_ARRAY[] = {KEYPAD_COLUMN_1, KEYPAD_COLUMN_2, KEYPAD_COLUMN_3, KEYPAD_COLUMN_3}; //KEYPAD_COLUMN_4
 	char KEYPAD_OUTPUT_ARRAY[] = {'1', '2', '3', 'A', '4', '5','6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D' };
 	
 	for(int i = 0; i < 4; i++) {
@@ -463,7 +465,7 @@ static char keypad_get_value(uint32_t debouce_in_ms) {
 			pio_set(KEYPAD_LINE_2_PIO, KEYPAD_LINE_2);
 			pio_set(KEYPAD_LINE_3_PIO, KEYPAD_LINE_3);
 			pio_set(KEYPAD_LINE_4_PIO, KEYPAD_LINE_4);
-			if(keypad_check_pin(KEYPAD_LINE_PIO_ARRAY[i], KEYPAD_LINE_ARRAY[i], KEYPAD_COLUMN_PIO_ARRAY[j],  KEYPAD_COLUMN_ARRAY[j],debouce_in_ms)) {
+			if(keypad_check_pin(KEYPAD_LINE_PIO_ARRAY[i], KEYPAD_LINE_ARRAY[i], KEYPAD_COLUMN_PIO_ARRAY[j],  KEYPAD_COLUMN_ARRAY[j])) {
 				return KEYPAD_OUTPUT_ARRAY[i*4+j];
 			}
 		}
@@ -481,19 +483,16 @@ static void taskKeypad(void *pvParameters) {
 	pio_clear(KEYPAD_LINE_4_PIO, KEYPAD_LINE_4);
 	for(;;) {
 		if(xSemaphoreTake(semaKeypad, 0) == pdTRUE) {
-		
-		pio_set(KEYPAD_LINE_1_PIO, KEYPAD_LINE_1);
-		pio_set(KEYPAD_LINE_2_PIO, KEYPAD_LINE_2);
-		pio_set(KEYPAD_LINE_3_PIO, KEYPAD_LINE_3);
-		pio_set(KEYPAD_LINE_4_PIO, KEYPAD_LINE_4);
-			char k = keypad_get_value(200);
-			printf("%c", k);
-				pio_clear(KEYPAD_LINE_1_PIO, KEYPAD_LINE_1);
-				pio_clear(KEYPAD_LINE_2_PIO, KEYPAD_LINE_2);
-				pio_clear(KEYPAD_LINE_3_PIO, KEYPAD_LINE_3);
-				pio_clear(KEYPAD_LINE_4_PIO, KEYPAD_LINE_4);
+			char k = keypad_get_value();
+			if(k != ' ') {
+				printf("%c", k);
+			}
+			pio_clear(KEYPAD_LINE_1_PIO, KEYPAD_LINE_1);
+			pio_clear(KEYPAD_LINE_2_PIO, KEYPAD_LINE_2);
+			pio_clear(KEYPAD_LINE_3_PIO, KEYPAD_LINE_3);
+			pio_clear(KEYPAD_LINE_4_PIO, KEYPAD_LINE_4);
 		}
-	
+		
 	}
 }
 
@@ -510,32 +509,32 @@ int main (void)
 	
 	semaLCDRedraw = xSemaphoreCreateBinary();
 	
-	 if (semaLCDRedraw == NULL)
-	 printf("falha em criar o semaforo \n");
-	 
-	 semaFilamento = xSemaphoreCreateBinary();
-	 
-	 if (semaFilamento == NULL)
-	 printf("falha em criar o semaforo \n");
-	 
-	  semaKeypad = xSemaphoreCreateBinary();
-	  
-	  if (semaKeypad == NULL)
-	  printf("falha em criar o semaforo \n");
-	  
-	 
+	if (semaLCDRedraw == NULL)
+	printf("falha em criar o semaforo \n");
+	
+	semaFilamento = xSemaphoreCreateBinary();
+	
+	if (semaFilamento == NULL)
+	printf("falha em criar o semaforo \n");
+	
+	semaKeypad = xSemaphoreCreateBinary();
+	
+	if (semaKeypad == NULL)
+	printf("falha em criar o semaforo \n");
+	/*
+	
 	if (xTaskCreate(taskBluetooth, "Bluetooth", TASK_BT_STACK_SIZE, NULL, TASK_BT_STACK_PRIORITY, NULL) != pdPASS)
-		printf("Failed to create BT task\r\n");
+	printf("Failed to create BT task\r\n");
 	
 	if (xTaskCreate(taskLCD, "LCD", TASK_LCD_STACK_SIZE, NULL, TASK_LCD_STACK_PRIORITY, NULL) != pdPASS)
 	printf("Failed to create LCD task\r\n");
 	
 	if (xTaskCreate(taskFilamento, "Filamento", TASK_FILAMENTO_STACK_SIZE, NULL, TASK_FILAMENTO_STACK_PRIORITY, NULL) != pdPASS)
 	printf("Failed to create Filamento task\r\n");
+	*/
 	
-	 /*
-	 	if (xTaskCreate(taskKeypad, "Keypad", TASK_FILAMENTO_STACK_SIZE, NULL, TASK_FILAMENTO_STACK_PRIORITY, NULL) != pdPASS)
-	 	printf("Failed to create Filamento task\r\n");*/
+	if (xTaskCreate(taskKeypad, "Keypad", TASK_FILAMENTO_STACK_SIZE, NULL, TASK_FILAMENTO_STACK_PRIORITY, NULL) != pdPASS)
+	printf("Failed to create Filamento task\r\n");
 	vTaskStartScheduler();
 
 	while(1) {};
