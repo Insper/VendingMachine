@@ -18,35 +18,37 @@
 #define TASK_KEYPAD_PRIORITY   (tskIDLE_PRIORITY + 3u)
 
 // TODO: Reorganizar parte de motor
-#define M1_A1			 PIOA
+
+#define M1_A1			PIOA
 #define M1_A1_ID        ID_PIOA
-#define M1_A1_IDX       5u
-#define M1_A1_IDX_MASK  (1u << M1_A1_IDX)
+#define M1_A1_IDX       5
+#define M1_A1_IDX_MASK  (1 << M1_A1_IDX)
 
-#define M1_A2            PIOA
+#define M1_A2           PIOA
 #define M1_A2_ID        ID_PIOA
-#define M1_A2_IDX       6u
-#define M1_A2_IDX_MASK  (1u << M1_A2_IDX)
+#define M1_A2_IDX       6
+#define M1_A2_IDX_MASK  (1 << M1_A2_IDX)
 
-#define M1_B1            PIOD
+#define M1_B1           PIOD
 #define M1_B1_ID        ID_PIOD
-#define M1_B1_IDX       27u
-#define M1_B1_IDX_MASK  (1u << M1_B1_IDX)
+#define M1_B1_IDX       27
+#define M1_B1_IDX_MASK  (1 << M1_B1_IDX)
 
 #define M1_B2           PIOD
 #define M1_B2_ID        ID_PIOD
-#define M1_B2_IDX       11u
-#define M1_B2_IDX_MASK  (1u << M1_B2_IDX)
+#define M1_B2_IDX       11
+#define M1_B2_IDX_MASK  (1 << M1_B2_IDX)
 
 #define M1_ENA           PIOC
 #define M1_ENA_ID        ID_PIOC
-#define M1_ENA_IDX       19u
-#define M1_ENA_IDX_MASK  (1u << M1_ENA_IDX)
+#define M1_ENA_IDX       19
+#define M1_ENA_IDX_MASK  (1 << M1_ENA_IDX)
 
 #define M1_ENB           PIOA
 #define M1_ENB_ID        ID_PIOA
-#define M1_ENB_IDX       2u
-#define M1_ENB_IDX_MASK  (1u << M1_ENB_IDX)
+#define M1_ENB_IDX       2
+#define M1_ENB_IDX_MASK  (1 << M1_ENB_IDX)
+
 
 #define KEYPAD_LINE_1_PIO PIOC
 #define KEYPAD_LINE_1 PIO_PC31
@@ -89,6 +91,7 @@ uint32_t g_keypad_state = 0;
 // Estado 0 -> Opcao
 // Estado 1 -> Quantidade
 // Estado 2 -> Confirma/Cancela
+// Estado 3 -> Pago (confirmado) -> saida filamento
 
 // Eventos do RTOS
 extern void vApplicationStackOverflowHook(xTaskHandle *pxTask,
@@ -239,9 +242,9 @@ void draw_filament_status(int x, int y, uint32_t color, int filament_id, const c
 	ili9488_draw_string(x+50, y+130, color_name);
 	if(percentage >= 60) {
 		ili9488_set_foreground_color(COLOR_CONVERT(COLOR_GREEN));
-		} else if(percentage >= 30) {
+	} else if(percentage >= 30) {
 		ili9488_set_foreground_color(COLOR_CONVERT(COLOR_YELLOW));
-		} else {
+	} else {
 		ili9488_set_foreground_color(COLOR_CONVERT(COLOR_RED));
 	}
 	ili9488_draw_rectangle(x+10, y+160, x+128, y+160+23);
@@ -249,7 +252,7 @@ void draw_filament_status(int x, int y, uint32_t color, int filament_id, const c
 	ili9488_set_foreground_color(COLOR_CONVERT(COLOR_BLACK));
 	if(abs(percentage) <= 100) {
 		sprintf(percentage_text, "%d%%",  percentage);
-		} else {
+	} else {
 		sprintf(percentage_text, "",  percentage);
 	}
 	
@@ -274,8 +277,8 @@ void draw_lcd_screen(void) {
 	ili9488_draw_string(10, 25, "- ESCOLHA O NUM. DA OPCAO");
 	ili9488_draw_string(10, 45, "- INDIQUE A QUANTIDADE");
 	ili9488_draw_string(10, 65, "- PAGUE PELO APP");
-	draw_filament_status(10, 100, COLOR_GREEN, 1, "VERDE", 40);
-	draw_filament_status(170, 100, COLOR_BLUE, 2, "AZUL", 80);
+	draw_filament_status(10, 100, COLOR_RED, 1, "VERMELHO", 100);
+	draw_filament_status(170, 100, COLOR_GREEN, 2, "VERDE", 100);
 	
 	ili9488_draw_string(5, 435, "* - LIMPAR");
 	ili9488_draw_string(160, 435, "# - CONFIRMA");
@@ -287,23 +290,23 @@ void draw_lcd_screen(void) {
 // Motor
 // TODO: Reorganizaçao, sincronizar codigo com o mais atual
 void motor_config() {
-	pmc_enable_periph_clk(M1_A1_ID);
-	pio_set_output(M1_A1, M1_A1_IDX_MASK, 1, 0, 0);
-	
-	pmc_enable_periph_clk(M1_A2_ID);
-	pio_set_output(M1_A2, M1_A2_IDX_MASK, 1, 0, 0);
-	
-	pmc_enable_periph_clk(M1_B1_ID);
-	pio_set_output(M1_B1, M1_B1_IDX_MASK, 1, 0, 0);
-	
-	pmc_enable_periph_clk(M1_B2_ID);
-	pio_set_output(M1_B2, M1_B2_IDX_MASK, 1, 0, 0);
-	
-	pmc_enable_periph_clk(M1_ENA_ID);
-	pio_set_output(M1_ENA, M1_ENA_IDX_MASK, 1, 0, 0);
-	
-	pmc_enable_periph_clk(M1_ENB_ID);
-	pio_set_output(M1_ENB, M1_ENB_IDX_MASK, 1, 0, 0);
+		pmc_enable_periph_clk(M1_A1_ID);
+		pio_set_output(M1_A1, M1_A1_IDX_MASK, 1, 0, 0);
+		
+		pmc_enable_periph_clk(M1_A2_ID);
+		pio_set_output(M1_A2, M1_A2_IDX_MASK, 1, 0, 0);
+		
+		pmc_enable_periph_clk(M1_B1_ID);
+		pio_set_output(M1_B1, M1_B1_IDX_MASK, 1, 0, 0);
+		
+		pmc_enable_periph_clk(M1_B2_ID);
+		pio_set_output(M1_B2, M1_B2_IDX_MASK, 1, 0, 0);
+		
+		pmc_enable_periph_clk(M1_ENA_ID);
+		pio_set_output(M1_ENA, M1_ENA_IDX_MASK, 1, 0, 0);
+		
+		pmc_enable_periph_clk(M1_ENB_ID);
+		pio_set_output(M1_ENB, M1_ENB_IDX_MASK, 1, 0, 0);
 }
 
 void motor_passo() {
@@ -311,33 +314,34 @@ void motor_passo() {
 	
 	switch(passo) {
 		case 0:
-		pio_set(PIOC, M1_ENA_IDX_MASK);
-		pio_set(PIOA, M1_ENB_IDX_MASK);
-		pio_set(PIOA, M1_A1_IDX_MASK);
-		pio_clear(PIOA, M1_A2_IDX_MASK);
-		pio_clear(PIOD, M1_B1_IDX_MASK);
-		pio_clear(PIOD, M1_B2_IDX_MASK);
+pio_set(PIOC, M1_ENA_IDX_MASK);
+pio_set(PIOA, M1_ENB_IDX_MASK);
+
+pio_set(PIOA, M1_A1_IDX_MASK);
+pio_clear(PIOA, M1_A2_IDX_MASK);
+pio_clear(PIOD, M1_B1_IDX_MASK);
+pio_clear(PIOD, M1_B2_IDX_MASK);
 		break;
 		
 		case 1:
-		pio_clear(PIOA, M1_A1_IDX_MASK);
-		pio_set(PIOA, M1_A2_IDX_MASK);
-		pio_clear(PIOD, M1_B1_IDX_MASK);
-		pio_clear(PIOD, M1_B2_IDX_MASK);
+pio_clear(PIOA, M1_A1_IDX_MASK);
+pio_set(PIOA, M1_A2_IDX_MASK);
+pio_clear(PIOD, M1_B1_IDX_MASK);
+pio_clear(PIOD, M1_B2_IDX_MASK);
 		break;
 		
 		case 2:
-		pio_clear(PIOA, M1_A1_IDX_MASK);
-		pio_clear(PIOA, M1_A2_IDX_MASK);
-		pio_clear(PIOD, M1_B1_IDX_MASK);
-		pio_set(PIOD, M1_B2_IDX_MASK);
+pio_clear(PIOA, M1_A1_IDX_MASK);
+pio_clear(PIOA, M1_A2_IDX_MASK);
+pio_clear(PIOD, M1_B1_IDX_MASK);
+pio_set(PIOD, M1_B2_IDX_MASK);
 		break;
 		
 		case 3:
-		pio_clear(PIOA, M1_A1_IDX_MASK);
-		pio_clear(PIOA, M1_A2_IDX_MASK);
-		pio_set(PIOD, M1_B1_IDX_MASK);
-		pio_clear(PIOD, M1_B2_IDX_MASK);
+	pio_clear(PIOA, M1_A1_IDX_MASK);
+	pio_clear(PIOA, M1_A2_IDX_MASK);
+	pio_set(PIOD, M1_B1_IDX_MASK);
+	pio_clear(PIOD, M1_B2_IDX_MASK);
 		passo = 0u;
 		return;
 		break;
@@ -345,6 +349,13 @@ void motor_passo() {
 	passo++;
 }
 
+void keypad_clear() {
+	sprintf(g_quantidade, "");
+	g_quantidade_num = 0;
+	sprintf(g_opcao, "");
+	g_opcao_num = 0;
+	g_keypad_state = 0;
+}
 
 static void taskBluetooth(void *pvParameters) {
 	usart_log("BT_Task", "Iniciando...");
@@ -365,6 +376,9 @@ static void taskBluetooth(void *pvParameters) {
 			usart_log("bt", buffer);
 			if(read > 0 && strstr(buffer, "A") != 0) {
 				usart_put_string(USART0, "V\n");
+				g_keypad_state = 3;
+				xSemaphoreGive(g_semLCDRedraw);
+				xSemaphoreGive(g_semFilamento);
 			}
 			vTaskDelay(200/portTICK_PERIOD_MS);
 		}
@@ -397,15 +411,16 @@ static void taskLCD(void *pvParameters) {
 				ili9488_draw_string(160, 390, g_quantidade);
 			} else if(g_keypad_state == 2) {
 				ili9488_draw_string(80, 370, "PAGUE PELO APP");
+				g_valor = atoi(g_quantidade);
 				sprintf(buffer, "R$%d,00", g_valor);
 				ili9488_draw_string(120, 390, buffer);
+			} else if(g_keypad_state == 3) {
+				ili9488_draw_string(120, 370, "APROVADO");
+				ili9488_draw_string(100, 390, "AGUARDE...");
 			}
 		}
 	}
 }
-
-
-
 
 void keypad_ir(void) {
 	BaseType_t xHigherPriorityTaskWoken = pdTRUE;
@@ -459,15 +474,18 @@ static void configure_keypad(void) {
 static void taskFilamento(void *pvParameters) {
 	usart_log("Filamento_Task", "Iniciando...");
 	for(;;) {
-		if( xSemaphoreTake(g_semFilamento, 10))
+		if( xSemaphoreTake(g_semFilamento, 2000))
 		{
-			for(uint32_t i = 0; i < 10; i++) {
+			usart_log("Filamento", "Acionando motores");
+			/*
+			for(uint32_t i = 0; i < 1000; i++) {
 				motor_passo();
 				vTaskDelay(10/portTICK_PERIOD_MS);
-			}
-			} else {
-			vTaskDelay(4000/portTICK_PERIOD_MS);
-		}
+			}*/
+			vTaskDelay(10000/portTICK_PERIOD_MS);
+			keypad_clear();
+			xSemaphoreGive(g_semLCDRedraw);
+		} 
 	}
 }
 
@@ -509,7 +527,7 @@ static char keypad_get_value() {
 static void taskKeypad(void *pvParameters) {
 	configure_keypad();
 	usart_log("Keypad_task", "Iniciando...");
-	
+	//xSemaphoreGive(g_semFilamento);
 	for(;;) {
 		if(xSemaphoreTake(g_semKeypad, 10000) == pdTRUE) {
 			char k = keypad_get_value();
@@ -540,11 +558,7 @@ static void taskKeypad(void *pvParameters) {
 				
 				case 2:
 					if(k == '*') {
-						sprintf(g_quantidade, "");
-						g_quantidade_num = 0;
-						sprintf(g_opcao, "");
-						g_opcao_num = 0;
-						g_keypad_state = 0;
+						keypad_clear();
 					}
 				break;
 				
