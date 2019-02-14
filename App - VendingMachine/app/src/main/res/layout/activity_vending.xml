@@ -7,24 +7,21 @@
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal"
                       android:text="Vending Machine" android:textSize="28dp" android:textColor="#ffffff"/>
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal"
-                      android:text="Escolha a cor" android:textSize="20dp" android:textColor="#ffffff"/>
+                      android:text="made by lab de arquitetura" android:textSize="16dp" android:textColor="#ffffff"/>
         </LinearLayout>
-       <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="2" android:rowCount="1" >
-           <LinearLayout android:layout_gravity="fill" android:layout_columnWeight="1" android:orientation="vertical">
-               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Filamento 1" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
-               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cor:" android:id="@+id/cor1_texto" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
-               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Disponível:" android:id="@+id/cor1_qnt" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
-               <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Comprar" android:id="@+id/cor1_comprar" android:layout_gravity="center" android:layout_marginTop="10dp"/>
-           </LinearLayout>
-           <LinearLayout android:layout_gravity="fill" android:layout_columnWeight="1" android:orientation="vertical">
-               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Filamento 2" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
-               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cor:" android:id="@+id/cor2_texto" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
-               <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Disponível:" android:id="@+id/cor2_qnt" android:gravity="center" android:textSize="16dp" android:paddingTop="5dp"/>
-               <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Comprar" android:id="@+id/cor2_comprar" android:layout_gravity="center" android:layout_marginTop="10dp"/>
-           </LinearLayout>
-       </GridLayout>
-       <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Debug / Terminal" android:id="@+id/debug_button" android:layout_gravity="center" android:layout_marginTop="10dp"/>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"  android:id="@+id/debug_layout" android:visibility="invisible">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/info_layout" android:visibility="visible">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Escolha o filamento e a quantidade na Vending Machine antes de continuar." android:gravity="center" android:textSize="18dp" android:paddingTop="5dp"/>
+
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/pedido_layout" android:visibility="gone">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Filamento escolhido" android:gravity="center" android:textSize="18dp" android:paddingTop="5dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cor:" android:id="@+id/filamento_cor" android:gravity="center" android:textSize="18dp" android:paddingTop="5dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Quantidade:" android:id="@+id/filamento_quantidade" android:gravity="center" android:textSize="18dp" android:paddingTop="5dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Valor:" android:id="@+id/filamento_valor" android:gravity="center" android:textSize="18dp" android:paddingTop="5dp"/>
+            <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pagar" android:id="@+id/comprar" android:layout_gravity="center" android:layout_marginTop="10dp"/>
+        </LinearLayout>
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Debug / Terminal" android:id="@+id/debug_button" android:layout_gravity="center" android:layout_marginTop="10dp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"  android:id="@+id/debug_layout" android:visibility="gone">
         <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

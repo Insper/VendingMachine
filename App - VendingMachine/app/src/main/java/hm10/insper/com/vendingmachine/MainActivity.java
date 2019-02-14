@@ -133,9 +133,9 @@ public class MainActivity extends ListActivity {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
 
-        final Intent intent = new Intent(this, HM10TerminalActivity.class);
-        intent.putExtra(HM10TerminalActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(HM10TerminalActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        final Intent intent = new Intent(this, VendingMachineActivity.class);
+        intent.putExtra(VendingMachineActivity.EXTRAS_DEVICE_NAME, device.getName());
+        intent.putExtra(VendingMachineActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         scanLeDevice(false);
 
         startActivity(intent);
