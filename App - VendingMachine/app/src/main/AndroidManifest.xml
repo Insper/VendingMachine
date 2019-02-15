@@ -23,7 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="hm10.insper.com.vendingmachine.HM10TerminalActivity">
+        <activity android:name="hm10.insper.com.vendingmachine.VendingMachineActivity">
 
         </activity>
     </application>

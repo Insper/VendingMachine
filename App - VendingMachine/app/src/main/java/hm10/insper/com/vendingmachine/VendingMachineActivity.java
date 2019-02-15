@@ -1,22 +1,20 @@
 package hm10.insper.com.vendingmachine;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.*;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
-import org.w3c.dom.Text;
 
 import java.util.UUID;
 
-public class HM10TerminalActivity extends Activity {
+public class VendingMachineActivity extends Activity {
 
-    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-    private static final String TAG = "HM10TerminalActivity";
+    public static final String  EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+    public static final String  EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    private static final String TAG = "VendingMachineActivity";
 
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothDevice mBluetoothDevice;
@@ -34,7 +32,6 @@ public class HM10TerminalActivity extends Activity {
         mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bundle.getString(EXTRAS_DEVICE_ADDRESS));
         super.onCreate(savedInstanceState);
 
-        //setContentView(R.layout.activity_hm10terminal);
         setContentView(R.layout.activity_vending);
         final Button button = (Button) findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
@@ -57,38 +54,28 @@ public class HM10TerminalActivity extends Activity {
             @Override
             public void onClick(View view) {
                 final LinearLayout debug_view = (LinearLayout) findViewById(R.id.debug_layout);
-                debug_view.setVisibility(View.VISIBLE);
-
+                if(debug_view.getVisibility() == View.VISIBLE) {
+                    debug_view.setVisibility(View.INVISIBLE);
+                } else {
+                    debug_view.setVisibility(View.VISIBLE);
+                }
             }
         });
 
-        final Button button_1 = (Button) findViewById(R.id.cor1_comprar);
+        final Button button_1 = (Button) findViewById(R.id.comprar);
         button_1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (connected) {
                     BluetoothGattCharacteristic ch = mBluetoothGatt.getService(hm10UartUUID).getCharacteristic(hm10UartWriteUUID);
-                    ch.setValue("C;0;1\n");
-                    Log.i(TAG, "Enviando compra cor 1.");
+                    ch.setValue("A\n");
+                    Log.i(TAG, "Enviando confirmação de pagamento");
                     mBluetoothGatt.writeCharacteristic(ch);
                 }
 
             }
         });
 
-        final Button button_2 = (Button) findViewById(R.id.cor2_comprar);
-        button_2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (connected) {
-                    BluetoothGattCharacteristic ch = mBluetoothGatt.getService(hm10UartUUID).getCharacteristic(hm10UartWriteUUID);
-                    ch.setValue("C;1;1\n");
-                    Log.i(TAG, "Enviando compra cor 2.");
-                    mBluetoothGatt.writeCharacteristic(ch);
-                }
-
-            }
-        });
     }
 
     @Override
@@ -156,24 +143,38 @@ public class HM10TerminalActivity extends Activity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(receivedData.startsWith("S")) {
-                        String filamentoData[] = receivedData.split(";");
-                        if(filamentoData[0].equals("S0")) {
-                            final TextView cor1 = (TextView) findViewById(R.id.cor1_texto);
-                            cor1.setText("Cor: " + filamentoData[1]);
+                    Button comprarButton = (Button) findViewById(R.id.comprar);
+                    LinearLayout layoutComprar = (LinearLayout) findViewById(R.id.pedido_layout);
 
-                            final TextView qnt1 = (TextView) findViewById(R.id.cor1_qnt);
-                            qnt1.setText("Quantidade: " + filamentoData[2]);
-                        } else if(filamentoData[0].equals("S1")) {
-                            final TextView cor2 = (TextView) findViewById(R.id.cor2_texto);
-                            cor2.setText("Cor: " + filamentoData[1]);
-
-                            final TextView qnt2 = (TextView) findViewById(R.id.cor2_qnt);
-                            qnt2.setText("Quantidade: " + filamentoData[2]);
-                        }
+                    if(receivedData.startsWith("W")) {
+                        LinearLayout layoutInfo = (LinearLayout) findViewById(R.id.info_layout);
+                        layoutInfo.setVisibility(View.VISIBLE);
+                        layoutComprar.setVisibility(View.GONE);
                     }
-                    if(receivedData.startsWith("ROK")) {
-                        Toast.makeText(HM10TerminalActivity.this, "Compra realizada com sucesso!", Toast.LENGTH_SHORT).show();
+                    else if(receivedData.startsWith("P")) {
+                        comprarButton.setEnabled(true);
+                        String filamentoData[] = receivedData.split(";");
+
+                        TextView corText = (TextView) findViewById(R.id.filamento_cor);
+
+                        // TODO: melhorar este codigo
+                        String cor = "";
+                        if(filamentoData[1].equals("1")) {
+                            cor = "VERDE";
+                        } else if(filamentoData[1].equals("2")) {
+                            cor = "VERMELHO";
+                        }
+                        corText.setText("Cor: " + cor);
+                        TextView quantidadeText = (TextView) findViewById(R.id.filamento_quantidade);
+                        quantidadeText.setText("Quantidade: " + filamentoData[2] + " cm") ;
+                        TextView valorText = (TextView) findViewById(R.id.filamento_valor);
+                        valorText.setText("Valor: R$" + filamentoData[3] + ",00");
+                        layoutComprar.setVisibility(View.VISIBLE);
+                    }
+                    
+                    if(receivedData.startsWith("V")) {
+                        comprarButton.setEnabled(false);
+                        Toast.makeText(VendingMachineActivity.this, "Compra realizada com sucesso!", Toast.LENGTH_SHORT).show();
                     }
 
                     EditText terminal = (EditText) findViewById(R.id.editText1);
