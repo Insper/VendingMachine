@@ -13,7 +13,7 @@
 #define TASK_BT_STACK_SIZE       (2048/sizeof(portSTACK_TYPE))
 #define TASK_BT_PRIORITY   (tskIDLE_PRIORITY + 1u)
 #define TASK_FILAMENTO_STACK_SIZE       (2048/sizeof(portSTACK_TYPE))
-#define TASK_FILAMENTO_PRIORITY   (tskIDLE_PRIORITY + 3u)
+#define TASK_FILAMENTO_PRIORITY   (tskIDLE_PRIORITY + 4u)
 #define TASK_KEYPAD_STACK_SIZE       (2048/sizeof(portSTACK_TYPE))
 #define TASK_KEYPAD_PRIORITY   (tskIDLE_PRIORITY + 3u)
 
@@ -21,34 +21,43 @@
 
 #define M1_A1			PIOA
 #define M1_A1_ID        ID_PIOA
-#define M1_A1_IDX       5
+#define M1_A1_IDX       18
 #define M1_A1_IDX_MASK  (1 << M1_A1_IDX)
 
-#define M1_A2           PIOA
-#define M1_A2_ID        ID_PIOA
-#define M1_A2_IDX       6
+#define M1_A2           PIOD
+#define M1_A2_ID        ID_PIOD
+#define M1_A2_IDX       17
 #define M1_A2_IDX_MASK  (1 << M1_A2_IDX)
 
 #define M1_B1           PIOD
 #define M1_B1_ID        ID_PIOD
-#define M1_B1_IDX       27
+#define M1_B1_IDX       18
 #define M1_B1_IDX_MASK  (1 << M1_B1_IDX)
 
-#define M1_B2           PIOD
-#define M1_B2_ID        ID_PIOD
-#define M1_B2_IDX       11
+#define M1_B2           PIOA
+#define M1_B2_ID        ID_PIOA
+#define M1_B2_IDX       5
 #define M1_B2_IDX_MASK  (1 << M1_B2_IDX)
 
-#define M1_ENA           PIOC
-#define M1_ENA_ID        ID_PIOC
-#define M1_ENA_IDX       19
-#define M1_ENA_IDX_MASK  (1 << M1_ENA_IDX)
+#define M2_A1			PIOA
+#define M2_A1_ID        ID_PIOA
+#define M2_A1_IDX       29
+#define M2_A1_IDX_MASK  (1 << M2_A1_IDX)
 
-#define M1_ENB           PIOA
-#define M1_ENB_ID        ID_PIOA
-#define M1_ENB_IDX       2
-#define M1_ENB_IDX_MASK  (1 << M1_ENB_IDX)
+#define M2_A2           PIOA
+#define M2_A2_ID        ID_PIOA
+#define M2_A2_IDX       1
+#define M2_A2_IDX_MASK  (1 << M2_A2_IDX)
 
+#define M2_B1           PIOA
+#define M2_B1_ID        ID_PIOA
+#define M2_B1_IDX       12
+#define M2_B1_IDX_MASK  (1 << M2_B1_IDX)
+
+#define M2_B2           PIOA
+#define M2_B2_ID        ID_PIOA
+#define M2_B2_IDX       31
+#define M2_B2_IDX_MASK  (1 << M2_B2_IDX)
 
 #define KEYPAD_LINE_1_PIO PIOC
 #define KEYPAD_LINE_1 PIO_PC31
@@ -67,6 +76,14 @@
 #define KEYPAD_COLUMN_3 PIO_PC30
 #define KEYPAD_COLUMN_4_PIO PIOD
 #define KEYPAD_COLUMN_4 PIO_PD20
+
+
+#define LED_OUT_R PIO_PA23
+#define LED_OUT_R_PIO PIOA
+#define LED_OUT_G PIO_PA25
+#define LED_OUT_G_PIO PIOA
+#define LED_OUT_B PIO_PA30
+#define LED_OUT_B_PIO PIOA
 
 // Prototype de funçoes
 extern void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName);
@@ -218,6 +235,12 @@ static void configure_console(void)
 	usart_enable_tx(CONF_UART);
 }
 
+void configure_led() {
+	pio_configure(LED_OUT_R_PIO, PIO_OUTPUT_0, LED_OUT_R, PIO_DEFAULT);
+	pio_configure(LED_OUT_G_PIO, PIO_OUTPUT_0, LED_OUT_G, PIO_DEFAULT);
+	pio_configure(LED_OUT_B_PIO, PIO_OUTPUT_0, LED_OUT_B, PIO_DEFAULT);
+}
+
 // LCD
 static void configure_lcd(void){
 	/* Initialize display parameter */
@@ -289,7 +312,7 @@ void draw_lcd_screen(void) {
 
 // Motor
 // TODO: Reorganizaçao, sincronizar codigo com o mais atual
-void motor_config() {
+void config_motor() {
 		pmc_enable_periph_clk(M1_A1_ID);
 		pio_set_output(M1_A1, M1_A1_IDX_MASK, 1, 0, 0);
 		
@@ -302,46 +325,87 @@ void motor_config() {
 		pmc_enable_periph_clk(M1_B2_ID);
 		pio_set_output(M1_B2, M1_B2_IDX_MASK, 1, 0, 0);
 		
-		pmc_enable_periph_clk(M1_ENA_ID);
-		pio_set_output(M1_ENA, M1_ENA_IDX_MASK, 1, 0, 0);
-		
-		pmc_enable_periph_clk(M1_ENB_ID);
-		pio_set_output(M1_ENB, M1_ENB_IDX_MASK, 1, 0, 0);
+		pmc_enable_periph_clk(M2_A1_ID);
+		pio_set_output(M2_A1, M2_A1_IDX_MASK, 1, 0, 0);
+				
+		pmc_enable_periph_clk(M2_A2_ID);
+		pio_set_output(M2_A2, M2_A2_IDX_MASK, 1, 0, 0);
+				
+		pmc_enable_periph_clk(M2_B1_ID);
+		pio_set_output(M2_B1, M2_B1_IDX_MASK, 1, 0, 0);
+				
+		pmc_enable_periph_clk(M2_B2_ID);
+		pio_set_output(M2_B2, M2_B2_IDX_MASK, 1, 0, 0);
 }
 
-void motor_passo() {
+void motor1_passo() {
 	static uint32_t passo = 0u;
 	
 	switch(passo) {
 		case 0:
-pio_set(PIOC, M1_ENA_IDX_MASK);
-pio_set(PIOA, M1_ENB_IDX_MASK);
-
-pio_set(PIOA, M1_A1_IDX_MASK);
-pio_clear(PIOA, M1_A2_IDX_MASK);
-pio_clear(PIOD, M1_B1_IDX_MASK);
-pio_clear(PIOD, M1_B2_IDX_MASK);
+pio_set(M1_A1, M1_A1_IDX_MASK);
+pio_clear(M1_A2, M1_A2_IDX_MASK);
+pio_clear(M1_B1, M1_B1_IDX_MASK);
+pio_clear(M1_B2, M1_B2_IDX_MASK);
 		break;
 		
 		case 1:
-pio_clear(PIOA, M1_A1_IDX_MASK);
-pio_set(PIOA, M1_A2_IDX_MASK);
-pio_clear(PIOD, M1_B1_IDX_MASK);
-pio_clear(PIOD, M1_B2_IDX_MASK);
+pio_clear(M1_A1, M1_A1_IDX_MASK);
+pio_set(M1_A2, M1_A2_IDX_MASK);
+pio_clear(M1_B1, M1_B1_IDX_MASK);
+pio_clear(M1_B2, M1_B2_IDX_MASK);
 		break;
 		
 		case 2:
-pio_clear(PIOA, M1_A1_IDX_MASK);
-pio_clear(PIOA, M1_A2_IDX_MASK);
-pio_clear(PIOD, M1_B1_IDX_MASK);
-pio_set(PIOD, M1_B2_IDX_MASK);
+pio_clear(M1_A1, M1_A1_IDX_MASK);
+pio_clear(M1_A2, M1_A2_IDX_MASK);
+pio_set(M1_B1, M1_B1_IDX_MASK);
+pio_clear(M1_B2, M1_B2_IDX_MASK);
 		break;
 		
 		case 3:
-	pio_clear(PIOA, M1_A1_IDX_MASK);
-	pio_clear(PIOA, M1_A2_IDX_MASK);
-	pio_set(PIOD, M1_B1_IDX_MASK);
-	pio_clear(PIOD, M1_B2_IDX_MASK);
+	pio_clear(M1_A1, M1_A1_IDX_MASK);
+	pio_clear(M1_A2, M1_A2_IDX_MASK);
+	pio_clear(M1_B1, M1_B1_IDX_MASK);
+	pio_set(M1_B2, M1_B2_IDX_MASK);
+		passo = 0u;
+		return;
+		break;
+	}
+	passo++;
+}
+
+
+void motor2_passo() {
+	static uint32_t passo = 0u;
+	
+	switch(passo) {
+		case 0:
+		pio_set(M2_A1, M2_A1_IDX_MASK);
+		pio_clear(M2_A2, M2_A2_IDX_MASK);
+		pio_clear(M2_B1, M2_B1_IDX_MASK);
+		pio_clear(M2_B2, M2_B2_IDX_MASK);
+		break;
+		
+		case 1:
+		pio_clear(M2_A1, M2_A1_IDX_MASK);
+		pio_set(M2_A2, M2_A2_IDX_MASK);
+		pio_clear(M2_B1, M2_B1_IDX_MASK);
+		pio_clear(M2_B2, M2_B2_IDX_MASK);
+		break;
+		
+		case 2:
+		pio_clear(M2_A1, M2_A1_IDX_MASK);
+		pio_clear(M2_A2, M2_A2_IDX_MASK);
+		pio_set(M2_B1, M2_B1_IDX_MASK);
+		pio_clear(M2_B2, M2_B2_IDX_MASK);
+		break;
+		
+		case 3:
+		pio_clear(M2_A1, M2_A1_IDX_MASK);
+		pio_clear(M2_A2, M2_A2_IDX_MASK);
+		pio_clear(M2_B1, M2_B1_IDX_MASK);
+		pio_set(M2_B2, M2_B2_IDX_MASK);
 		passo = 0u;
 		return;
 		break;
@@ -473,19 +537,89 @@ static void configure_keypad(void) {
 
 static void taskFilamento(void *pvParameters) {
 	usart_log("Filamento_Task", "Iniciando...");
+	configure_led();
+	config_motor();
+	pio_set(LED_OUT_B_PIO, LED_OUT_B);
 	for(;;) {
 		if( xSemaphoreTake(g_semFilamento, 2000))
 		{
+			uint32_t filamento = atoi(g_opcao);
+			uint32_t quantidade = atoi(g_quantidade);
+			pio_clear(LED_OUT_B_PIO, LED_OUT_B);
+			
 			usart_log("Filamento", "Acionando motores");
-			/*
-			for(uint32_t i = 0; i < 1000; i++) {
-				motor_passo();
-				vTaskDelay(10/portTICK_PERIOD_MS);
-			}*/
-			vTaskDelay(10000/portTICK_PERIOD_MS);
+			if(filamento == 1) {
+				pio_set(LED_OUT_R_PIO, LED_OUT_R);
+				for(uint32_t i = 0; i < 40*quantidade; i++) {
+					pio_set(M1_A1, M1_A1_IDX_MASK);
+					pio_clear(M1_A2, M1_A2_IDX_MASK);
+					pio_clear(M1_B1, M1_B1_IDX_MASK);
+					pio_clear(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(10/portTICK_PERIOD_MS);
+					
+					pio_clear(M1_A1, M1_A1_IDX_MASK);
+					pio_clear(M1_A2, M1_A2_IDX_MASK);
+					pio_set(M1_B1, M1_B1_IDX_MASK);
+					pio_clear(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(10/portTICK_PERIOD_MS);
+					
+					
+					pio_clear(M1_A1, M1_A1_IDX_MASK);
+					pio_set(M1_A2, M1_A2_IDX_MASK);
+					pio_clear(M1_B1, M1_B1_IDX_MASK);
+					pio_clear(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(10/portTICK_PERIOD_MS);
+					
+
+					
+					pio_clear(M1_A1, M1_A1_IDX_MASK);
+					pio_clear(M1_A2, M1_A2_IDX_MASK);
+					pio_clear(M1_B1, M1_B1_IDX_MASK);
+					pio_set(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(10/portTICK_PERIOD_MS);
+					
+				}
+			} else if(filamento == 2) {
+				pio_set(LED_OUT_G_PIO, LED_OUT_G);
+				for(uint32_t i = 0; i < 40*quantidade; i++) {
+					pio_set(M2_A1, M2_A1_IDX_MASK);
+					pio_clear(M2_A2, M2_A2_IDX_MASK);
+					pio_clear(M2_B1, M2_B1_IDX_MASK);
+					pio_clear(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(10/portTICK_PERIOD_MS);
+					
+					pio_clear(M2_A1, M2_A1_IDX_MASK);
+					pio_clear(M2_A2, M2_A2_IDX_MASK);
+					pio_set(M2_B1, M2_B1_IDX_MASK);
+					pio_clear(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(10/portTICK_PERIOD_MS);
+					
+					
+					pio_clear(M2_A1, M2_A1_IDX_MASK);
+					pio_set(M2_A2, M2_A2_IDX_MASK);
+					pio_clear(M2_B1, M2_B1_IDX_MASK);
+					pio_clear(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(10/portTICK_PERIOD_MS);
+					
+
+					
+					pio_clear(M2_A1, M2_A1_IDX_MASK);
+					pio_clear(M2_A2, M2_A2_IDX_MASK);
+					pio_clear(M2_B1, M2_B1_IDX_MASK);
+					pio_set(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(10/portTICK_PERIOD_MS);
+					
+				}
+			}
+			//vTaskDelay(10000/portTICK_PERIOD_MS);
+			
+			pio_set(LED_OUT_B_PIO, LED_OUT_B);
+			pio_clear(LED_OUT_R_PIO, LED_OUT_R);
+			pio_clear(LED_OUT_G_PIO, LED_OUT_G);
 			keypad_clear();
 			xSemaphoreGive(g_semLCDRedraw);
 		} 
+		
 	}
 }
 
@@ -527,7 +661,6 @@ static char keypad_get_value() {
 static void taskKeypad(void *pvParameters) {
 	configure_keypad();
 	usart_log("Keypad_task", "Iniciando...");
-	//xSemaphoreGive(g_semFilamento);
 	for(;;) {
 		if(xSemaphoreTake(g_semKeypad, 10000) == pdTRUE) {
 			char k = keypad_get_value();
@@ -572,6 +705,8 @@ static void taskKeypad(void *pvParameters) {
 	}
 }
 
+
+
 // Start
 int main (void)
 {
@@ -597,6 +732,7 @@ int main (void)
 		printf("falha em criar o semaforo \n");
 	}
 	
+	
 	if (xTaskCreate(taskBluetooth, "Bluetooth", TASK_BT_STACK_SIZE, NULL, TASK_BT_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create BT task\r\n");
 	}
@@ -609,11 +745,18 @@ int main (void)
 		printf("Failed to create Filamento task\r\n");
 	}
 	
+	
 	if (xTaskCreate(taskKeypad, "Keypad", TASK_KEYPAD_STACK_SIZE, NULL, TASK_KEYPAD_PRIORITY, NULL) != pdPASS) {
 		printf("Failed to create Filamento task\r\n");
 	}
 	
+	
 	vTaskStartScheduler();
-	while(1) {};
+	while(1) {
+		
+		
+		
+		
+		};
 	return 0;
 }
