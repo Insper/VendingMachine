@@ -19,6 +19,11 @@
 
 // TODO: Reorganizar parte de motor
 
+#define M_ENABLE        PIOA
+#define M_ENABLE_ID     ID_PIOA
+#define M_ENABLE_IDX    10
+#define M_ENABLE_IDX_MASK (1 << M_ENABLE_IDX)
+
 #define M1_A1			PIOA
 #define M1_A1_ID        ID_PIOA
 #define M1_A1_IDX       18
@@ -313,6 +318,9 @@ void draw_lcd_screen(void) {
 // Motor
 // TODO: Reorganizaçao, sincronizar codigo com o mais atual
 void config_motor() {
+		pmc_enable_periph_clk(M_ENABLE_ID);
+		pio_set_output(M_ENABLE, M_ENABLE_IDX_MASK, 0, 0, 0);
+	
 		pmc_enable_periph_clk(M1_A1_ID);
 		pio_set_output(M1_A1, M1_A1_IDX_MASK, 1, 0, 0);
 		
@@ -338,81 +346,6 @@ void config_motor() {
 		pio_set_output(M2_B2, M2_B2_IDX_MASK, 1, 0, 0);
 }
 
-void motor1_passo() {
-	static uint32_t passo = 0u;
-	
-	switch(passo) {
-		case 0:
-pio_set(M1_A1, M1_A1_IDX_MASK);
-pio_clear(M1_A2, M1_A2_IDX_MASK);
-pio_clear(M1_B1, M1_B1_IDX_MASK);
-pio_clear(M1_B2, M1_B2_IDX_MASK);
-		break;
-		
-		case 1:
-pio_clear(M1_A1, M1_A1_IDX_MASK);
-pio_set(M1_A2, M1_A2_IDX_MASK);
-pio_clear(M1_B1, M1_B1_IDX_MASK);
-pio_clear(M1_B2, M1_B2_IDX_MASK);
-		break;
-		
-		case 2:
-pio_clear(M1_A1, M1_A1_IDX_MASK);
-pio_clear(M1_A2, M1_A2_IDX_MASK);
-pio_set(M1_B1, M1_B1_IDX_MASK);
-pio_clear(M1_B2, M1_B2_IDX_MASK);
-		break;
-		
-		case 3:
-	pio_clear(M1_A1, M1_A1_IDX_MASK);
-	pio_clear(M1_A2, M1_A2_IDX_MASK);
-	pio_clear(M1_B1, M1_B1_IDX_MASK);
-	pio_set(M1_B2, M1_B2_IDX_MASK);
-		passo = 0u;
-		return;
-		break;
-	}
-	passo++;
-}
-
-
-void motor2_passo() {
-	static uint32_t passo = 0u;
-	
-	switch(passo) {
-		case 0:
-		pio_set(M2_A1, M2_A1_IDX_MASK);
-		pio_clear(M2_A2, M2_A2_IDX_MASK);
-		pio_clear(M2_B1, M2_B1_IDX_MASK);
-		pio_clear(M2_B2, M2_B2_IDX_MASK);
-		break;
-		
-		case 1:
-		pio_clear(M2_A1, M2_A1_IDX_MASK);
-		pio_set(M2_A2, M2_A2_IDX_MASK);
-		pio_clear(M2_B1, M2_B1_IDX_MASK);
-		pio_clear(M2_B2, M2_B2_IDX_MASK);
-		break;
-		
-		case 2:
-		pio_clear(M2_A1, M2_A1_IDX_MASK);
-		pio_clear(M2_A2, M2_A2_IDX_MASK);
-		pio_set(M2_B1, M2_B1_IDX_MASK);
-		pio_clear(M2_B2, M2_B2_IDX_MASK);
-		break;
-		
-		case 3:
-		pio_clear(M2_A1, M2_A1_IDX_MASK);
-		pio_clear(M2_A2, M2_A2_IDX_MASK);
-		pio_clear(M2_B1, M2_B1_IDX_MASK);
-		pio_set(M2_B2, M2_B2_IDX_MASK);
-		passo = 0u;
-		return;
-		break;
-	}
-	passo++;
-}
-
 void keypad_clear() {
 	sprintf(g_quantidade, "");
 	g_quantidade_num = 0;
@@ -433,7 +366,7 @@ static void taskBluetooth(void *pvParameters) {
 			usart_put_string(USART0, "W\n");
 			vTaskDelay(5000/portTICK_PERIOD_MS);
 		} else if(g_keypad_state == 2) {
-			sprintf(buffer, "P;%d;%d;%d\n", atoi(g_opcao), atoi(g_quantidade), 150);
+			sprintf(buffer, "P;%d;%d;%d\n", atoi(g_opcao), atoi(g_quantidade), g_valor);
 			usart_put_string(USART0, buffer);
 			
 			uint32_t read = usart_get_string(USART0, buffer, 100, 1000);
@@ -546,11 +479,11 @@ static void taskFilamento(void *pvParameters) {
 			uint32_t filamento = atoi(g_opcao);
 			uint32_t quantidade = atoi(g_quantidade);
 			pio_clear(LED_OUT_B_PIO, LED_OUT_B);
-			
+			pio_set(M_ENABLE, M_ENABLE_IDX_MASK);
 			usart_log("Filamento", "Acionando motores");
 			if(filamento == 1) {
 				pio_set(LED_OUT_R_PIO, LED_OUT_R);
-				for(uint32_t i = 0; i < 40*quantidade; i++) {
+				for(uint32_t i = 0; i < 400*quantidade/17; i++) { // 400/17 * 10 cm (qnt) para obter 10 cm na saida
 					pio_set(M1_A1, M1_A1_IDX_MASK);
 					pio_clear(M1_A2, M1_A2_IDX_MASK);
 					pio_clear(M1_B1, M1_B1_IDX_MASK);
@@ -581,7 +514,7 @@ static void taskFilamento(void *pvParameters) {
 				}
 			} else if(filamento == 2) {
 				pio_set(LED_OUT_G_PIO, LED_OUT_G);
-				for(uint32_t i = 0; i < 40*quantidade; i++) {
+				for(uint32_t i = 0; i < 400*quantidade/17; i++) {
 					pio_set(M2_A1, M2_A1_IDX_MASK);
 					pio_clear(M2_A2, M2_A2_IDX_MASK);
 					pio_clear(M2_B1, M2_B1_IDX_MASK);
@@ -611,8 +544,8 @@ static void taskFilamento(void *pvParameters) {
 					
 				}
 			}
-			//vTaskDelay(10000/portTICK_PERIOD_MS);
 			
+			pio_clear(M_ENABLE, M_ENABLE_IDX_MASK);
 			pio_set(LED_OUT_B_PIO, LED_OUT_B);
 			pio_clear(LED_OUT_R_PIO, LED_OUT_R);
 			pio_clear(LED_OUT_G_PIO, LED_OUT_G);

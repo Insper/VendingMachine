@@ -160,9 +160,9 @@ public class VendingMachineActivity extends Activity {
                         // TODO: melhorar este codigo
                         String cor = "";
                         if(filamentoData[1].equals("1")) {
-                            cor = "VERDE";
-                        } else if(filamentoData[1].equals("2")) {
                             cor = "VERMELHO";
+                        } else if(filamentoData[1].equals("2")) {
+                            cor = "VERDE";
                         }
                         corText.setText("Cor: " + cor);
                         TextView quantidadeText = (TextView) findViewById(R.id.filamento_quantidade);
