@@ -2,6 +2,9 @@
 
 This is the repository of the Insper filament vending machine.
 
+![](https://github.com/Insper/VendingMachine/blob/master/doc/endv0-p1.jpeg)
+![](https://github.com/Insper/VendingMachine/blob/master/doc/endv0-p2.jpeg
+
 The first go of this machine was to demonstrate to undergraduate students that are attending the embedded computer course (Insper Computer Engineering) an demo of what they should do on the first (of two) projects of this course. On this project they should specify and develop an autonomous machine that sells something.
 
 Looking for some real need of a vending machine on Insper, we decided together if Insper-Fablab to "sell"  filaments for the 3D printers. 
@@ -20,7 +23,9 @@ This machine is controlled by a Microchip Cortex M7 uC (SAME70) and runs a freer
 - two step motors
 - RGB LED strips
 
-
+---------------------------
+- UNDER CONSTRUCTION 
+---------------------------
 
 ```
 
