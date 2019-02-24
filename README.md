@@ -1,15 +1,25 @@
-# VendingMachine Insper 2019 
+# Insper Filament Vending Machine 
 
 This is the repository of the Insper filament vending machine.
 
-The first go of this machine was to demonstrate to the undergraduate students that are taking the embedded computer course (Insper Computer Engineering) an demo of what thay shoud do on the first (of two) projects of this course. On this project thay should specify and develop an autonomous machine that sells something.
+The first go of this machine was to demonstrate to undergraduate students that are attending the embedded computer course (Insper Computer Engineering) an demo of what they should do on the first (of two) projects of this course. On this project they should specify and develop an autonomous machine that sells something.
 
-Looking for some real need of a vending machine on Insper, we decided together if Insper-Fablab to "sell"  filaments for the 3D printers. This is a rela need from they user and we found to be a fun and viable project.
+Looking for some real need of a vending machine on Insper, we decided together if Insper-Fablab to "sell"  filaments for the 3D printers. 
 
-Insper Fablab was responsabe for all the mechanical part (project and fabrication) and the Insper Computer Architecture  Lab for the specification, assemble and firmware development.
+Insper Fablab was response for all the mechanical part (project and fabrication). Insper Computer Architecture Lab for the specification, assemble and firmware development.
 
+Now that we have a first prototype we detect several improvements to the machine on several areas: Usability, Mechanical and Firmware. We start to specify a second version that shall be put under real test.
 
-Arquivos do projeto Vending Machine 2019_01
+# Technical
+
+This machine is controlled by a Microchip Cortex M7 uC (SAME70) and runs a freertos to control all peripherals: 
+
+- LCD
+- Keypad
+- bluetooth communication
+- two step motors
+- RGB LED strips
+
 
 
 ```
