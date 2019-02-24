@@ -1,4 +1,14 @@
-# VendingMachine_2019_01
+# VendingMachine Insper 2019 
+
+This is the repository of the Insper filament vending machine.
+
+The first go of this machine was to demonstrate to the undergraduate students that are taking the embedded computer course (Insper Computer Engineering) an demo of what thay shoud do on the first (of two) projects of this course. On this project thay should specify and develop an autonomous machine that sells something.
+
+Looking for some real need of a vending machine on Insper, we decided together if Insper-Fablab to "sell"  filaments for the 3D printers. This is a rela need from they user and we found to be a fun and viable project.
+
+Insper Fablab was responsabe for all the mechanical part (project and fabrication) and the Insper Computer Architecture  Lab for the specification, assemble and firmware development.
+
+
 Arquivos do projeto Vending Machine 2019_01
 
 
