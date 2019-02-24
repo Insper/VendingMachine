@@ -2,8 +2,8 @@
 
 This is the repository of the Insper filament vending machine.
 
-![](https://github.com/Insper/VendingMachine/blob/master/doc/endv0-p1.jpeg)
-![](https://github.com/Insper/VendingMachine/blob/master/doc/endv0-p2.jpeg)
+![](https://github.com/Insper/VendingMachine/blob/master/doc/endv0-p1.jpeg){:height="50%" width="50%"}
+![](https://github.com/Insper/VendingMachine/blob/master/doc/endv0-p2.jpeg){:height="50%" width="50%"}
 
 The first go of this machine was to demonstrate to undergraduate students that are attending the embedded computer course (Insper Computer Engineering) an demo of what they should do on the first (of two) projects of this course. On this project they should specify and develop an autonomous machine that sells something.
 
