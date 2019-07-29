@@ -17,52 +17,52 @@
 #define TASK_KEYPAD_STACK_SIZE       (2048/sizeof(portSTACK_TYPE))
 #define TASK_KEYPAD_PRIORITY   (tskIDLE_PRIORITY + 3u)
 
-// TODO: Reorganizar parte de motor
 
 #define M_ENABLE        PIOA
 #define M_ENABLE_ID     ID_PIOA
 #define M_ENABLE_IDX    10
 #define M_ENABLE_IDX_MASK (1 << M_ENABLE_IDX)
 
-#define M1_A1			PIOA
+#define M1_A1			PIOA //out 4 driver
 #define M1_A1_ID        ID_PIOA
 #define M1_A1_IDX       18
 #define M1_A1_IDX_MASK  (1 << M1_A1_IDX)
 
-#define M1_A2           PIOD
+#define M1_A2           PIOD //out 3 driver
 #define M1_A2_ID        ID_PIOD
 #define M1_A2_IDX       17
 #define M1_A2_IDX_MASK  (1 << M1_A2_IDX)
 
-#define M1_B1           PIOD
+#define M1_B1           PIOD  //out 2 driver
 #define M1_B1_ID        ID_PIOD
 #define M1_B1_IDX       18
 #define M1_B1_IDX_MASK  (1 << M1_B1_IDX)
 
-#define M1_B2           PIOA
+#define M1_B2           PIOA //out 1 driver
 #define M1_B2_ID        ID_PIOA
 #define M1_B2_IDX       5
 #define M1_B2_IDX_MASK  (1 << M1_B2_IDX)
 
-#define M2_A1			PIOA
+#define M2_A1			PIOA //out 4 driver
 #define M2_A1_ID        ID_PIOA
 #define M2_A1_IDX       29
 #define M2_A1_IDX_MASK  (1 << M2_A1_IDX)
 
-#define M2_A2           PIOA
+#define M2_A2           PIOA //out 3 driver
 #define M2_A2_ID        ID_PIOA
 #define M2_A2_IDX       1
 #define M2_A2_IDX_MASK  (1 << M2_A2_IDX)
 
-#define M2_B1           PIOA
+#define M2_B1           PIOA //out 2 driver
 #define M2_B1_ID        ID_PIOA
 #define M2_B1_IDX       12
 #define M2_B1_IDX_MASK  (1 << M2_B1_IDX)
 
-#define M2_B2           PIOA
+#define M2_B2           PIOA //out 1 driver
 #define M2_B2_ID        ID_PIOA
 #define M2_B2_IDX       31
 #define M2_B2_IDX_MASK  (1 << M2_B2_IDX)
+
 
 #define KEYPAD_LINE_1_PIO PIOC
 #define KEYPAD_LINE_1 PIO_PC31
@@ -83,11 +83,13 @@
 #define KEYPAD_COLUMN_4 PIO_PD20
 
 
-#define LED_OUT_R PIO_PA23
+#define LED_OUT_R PIO_PA30
 #define LED_OUT_R_PIO PIOA
+
 #define LED_OUT_G PIO_PA25
 #define LED_OUT_G_PIO PIOA
-#define LED_OUT_B PIO_PA30
+
+#define LED_OUT_B PIO_PA23
 #define LED_OUT_B_PIO PIOA
 
 // Prototype de funçoes
@@ -484,63 +486,131 @@ static void taskFilamento(void *pvParameters) {
 			if(filamento == 1) {
 				pio_set(LED_OUT_R_PIO, LED_OUT_R);
 				for(uint32_t i = 0; i < 400*quantidade/17; i++) { // 400/17 * 10 cm (qnt) para obter 10 cm na saida
+					
+					//Movimenta motor 1 (M1) -- Sentido Horário
+					
+					//Passo 1 -- Sentido Horário
 					pio_set(M1_A1, M1_A1_IDX_MASK);
-					pio_clear(M1_A2, M1_A2_IDX_MASK);
 					pio_clear(M1_B1, M1_B1_IDX_MASK);
-					pio_clear(M1_B2, M1_B2_IDX_MASK);
-					vTaskDelay(10/portTICK_PERIOD_MS);
-					
-					pio_clear(M1_A1, M1_A1_IDX_MASK);
 					pio_clear(M1_A2, M1_A2_IDX_MASK);
+					pio_clear(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 1_2 -- Sentido Horário
+					pio_set(M1_A1, M1_A1_IDX_MASK);
 					pio_set(M1_B1, M1_B1_IDX_MASK);
-					pio_clear(M1_B2, M1_B2_IDX_MASK);
-					vTaskDelay(10/portTICK_PERIOD_MS);
-					
-					
-					pio_clear(M1_A1, M1_A1_IDX_MASK);
-					pio_set(M1_A2, M1_A2_IDX_MASK);
-					pio_clear(M1_B1, M1_B1_IDX_MASK);
-					pio_clear(M1_B2, M1_B2_IDX_MASK);
-					vTaskDelay(10/portTICK_PERIOD_MS);
-					
-
-					
-					pio_clear(M1_A1, M1_A1_IDX_MASK);
 					pio_clear(M1_A2, M1_A2_IDX_MASK);
+					pio_clear(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 2 -- Sentido Horário
+					pio_clear(M1_A1, M1_A1_IDX_MASK);
+					pio_set(M1_B1, M1_B1_IDX_MASK);
+					pio_clear(M1_A2, M1_A2_IDX_MASK);
+					pio_clear(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 2_3 -- Sentido Horário
+					pio_clear(M1_A1, M1_A1_IDX_MASK);
+					pio_set(M1_B1, M1_B1_IDX_MASK);
+					pio_set(M1_A2, M1_A2_IDX_MASK);
+					pio_clear(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 3 -- Sentido Horário
+					pio_clear(M1_A1, M1_A1_IDX_MASK);
 					pio_clear(M1_B1, M1_B1_IDX_MASK);
+					pio_set(M1_A2, M1_A2_IDX_MASK);
+					pio_clear(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 3_4 -- Sentido Horário
+					pio_clear(M1_A1, M1_A1_IDX_MASK);
+					pio_clear(M1_B1, M1_B1_IDX_MASK);
+					pio_set(M1_A2, M1_A2_IDX_MASK);
 					pio_set(M1_B2, M1_B2_IDX_MASK);
-					vTaskDelay(10/portTICK_PERIOD_MS);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 4 -- Sentido Horário
+					pio_clear(M1_A1, M1_A1_IDX_MASK);
+					pio_clear(M1_B1, M1_B1_IDX_MASK);
+					pio_clear(M1_A2, M1_A2_IDX_MASK);
+					pio_set(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 4_1 -- Sentido Horário
+					pio_set(M1_A1, M1_A1_IDX_MASK);
+					pio_clear(M1_B1, M1_B1_IDX_MASK);
+					pio_clear(M1_A2, M1_A2_IDX_MASK);
+					pio_set(M1_B2, M1_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//==============================================
 					
 				}
 			} else if(filamento == 2) {
 				pio_set(LED_OUT_G_PIO, LED_OUT_G);
 				for(uint32_t i = 0; i < 400*quantidade/17; i++) {
+					
+					//Movimenta motor 2 (M2) -- Sentido Anti-Horário
+					
+					//Passo 1 -- Sentido Anti-Horário
 					pio_set(M2_A1, M2_A1_IDX_MASK);
-					pio_clear(M2_A2, M2_A2_IDX_MASK);
 					pio_clear(M2_B1, M2_B1_IDX_MASK);
-					pio_clear(M2_B2, M2_B2_IDX_MASK);
-					vTaskDelay(10/portTICK_PERIOD_MS);
-					
-					pio_clear(M2_A1, M2_A1_IDX_MASK);
 					pio_clear(M2_A2, M2_A2_IDX_MASK);
-					pio_set(M2_B1, M2_B1_IDX_MASK);
 					pio_clear(M2_B2, M2_B2_IDX_MASK);
-					vTaskDelay(10/portTICK_PERIOD_MS);
+					vTaskDelay(1/portTICK_PERIOD_MS);
 					
-					
-					pio_clear(M2_A1, M2_A1_IDX_MASK);
-					pio_set(M2_A2, M2_A2_IDX_MASK);
+					//Passo 1_4 -- Sentido Anti-Horário
+					pio_set(M2_A1, M2_A1_IDX_MASK);
 					pio_clear(M2_B1, M2_B1_IDX_MASK);
-					pio_clear(M2_B2, M2_B2_IDX_MASK);
-					vTaskDelay(10/portTICK_PERIOD_MS);
-					
-
-					
-					pio_clear(M2_A1, M2_A1_IDX_MASK);
 					pio_clear(M2_A2, M2_A2_IDX_MASK);
-					pio_clear(M2_B1, M2_B1_IDX_MASK);
 					pio_set(M2_B2, M2_B2_IDX_MASK);
-					vTaskDelay(10/portTICK_PERIOD_MS);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 4 -- Sentido Anti-Horário
+					pio_clear(M2_A1, M2_A1_IDX_MASK);
+					pio_clear(M2_B1, M2_B1_IDX_MASK);
+					pio_clear(M2_A2, M2_A2_IDX_MASK);
+					pio_set(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 4_3 -- Sentido Anti-Horário
+					pio_clear(M2_A1, M2_A1_IDX_MASK);
+					pio_clear(M2_B1, M2_B1_IDX_MASK);
+					pio_set(M2_A2, M2_A2_IDX_MASK);
+					pio_set(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 3 -- Sentido Anti-Horário
+					pio_clear(M2_A1, M2_A1_IDX_MASK);
+					pio_clear(M2_B1, M2_B1_IDX_MASK);
+					pio_set(M2_A2, M2_A2_IDX_MASK);
+					pio_clear(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 3_2 -- Sentido Anti-Horário
+					pio_clear(M2_A1, M2_A1_IDX_MASK);
+					pio_set(M2_B1, M2_B1_IDX_MASK);
+					pio_set(M2_A2, M2_A2_IDX_MASK);
+					pio_clear(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 2 -- Sentido Anti-Horário
+					pio_clear(M2_A1, M2_A1_IDX_MASK);
+					pio_set(M2_B1, M2_B1_IDX_MASK);
+					pio_clear(M2_A2, M2_A2_IDX_MASK);
+					pio_clear(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//Passo 2_1 -- Sentido Anti-Horário
+					pio_set(M2_A1, M2_A1_IDX_MASK);
+					pio_set(M2_B1, M2_B1_IDX_MASK);
+					pio_clear(M2_A2, M2_A2_IDX_MASK);
+					pio_clear(M2_B2, M2_B2_IDX_MASK);
+					vTaskDelay(1/portTICK_PERIOD_MS);
+					
+					//==============================================
 					
 				}
 			}
@@ -651,6 +721,8 @@ int main (void)
 	printf(STRING_HEADER);
 	
 	g_semLCDRedraw = xSemaphoreCreateBinary();
+	
+	
 	if (g_semLCDRedraw == NULL) {
 		printf("falha em criar o semaforo \n");
 	}
@@ -685,11 +757,9 @@ int main (void)
 	
 	
 	vTaskStartScheduler();
-	while(1) {
-		
-		
-		
-		
-		};
+	
+	while(1){
+	}
+	
 	return 0;
 }
